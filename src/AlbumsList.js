@@ -1,16 +1,28 @@
 import React from 'react';
-import axios from 'axios';
 
 import API from './api';
 
 export default class AlbumsList extends React.Component {
-  state = {
-    search: 'selena quintanilla',
-    albums: []
+
+  constructor(props) {
+    super(props);
+    this.state = {
+      search: 'selena quintanilla',
+      albums: [],
+    }
+
+    // Este enlace es necesario para hacer que `this` funcione en el callback
+    this.inputUpdated = this.inputUpdated.bind(this);
+    this.handleClick = this.handleClick.bind(this);
   }
 
-  componentDidMount() {
-    //https://itunes.apple.com/search?term=selena+quintanilla&country=mx&entity=album
+  inputUpdated(e) {
+    const { value } = e.target;
+
+    this.setState({ search: value });
+  }
+
+  handleClick() {
     API.get(`https://itunes.apple.com/search`, {
         params: {
           term: this.state.search,
@@ -24,11 +36,27 @@ export default class AlbumsList extends React.Component {
       })
   }
 
+  componentDidMount() {
+    //https://itunes.apple.com/search?term=selena+quintanilla&country=mx&entity=album
+  }
+
   render() {
     return (
-      <ul>
-        { this.state.albums.map(album => <li>{album.artistName} | {album.collectionName} | {album.releaseDate}</li>)}
-      </ul>
+      <React.Fragment>
+        <label htmlFor="search">Artist: </label>
+        <input type="text" name="search" id="search" value={this.state.search} onInput={this.inputUpdated} />
+        <button onClick={this.handleClick}>Search</button>
+        
+          { this.state.albums.map(album => 
+            <div>
+              <img src={album.artworkUrl100} alt="N/A" />
+              <h3>{album.artistName}</h3>
+              <h3>{album.collectionName}</h3>
+              <h3>{album.releaseDate}</h3>
+            </div>
+          )}
+        
+      </React.Fragment>
     )
   }
 }
